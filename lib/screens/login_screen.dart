@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/auth_provider.dart';
-import '../widgets/atoms/primary_button.dart';
-import '../widgets/molecules/app_text_field.dart';
+import '../services/prefs_service.dart';
+import '../screens/register_screen.dart';
+import '../widgets/organisms/login_form.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,27 +13,30 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final _name = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   final _email = TextEditingController();
   final _pass = TextEditingController();
-  bool _isRegister = false;
+  bool _obscurePass = true;
 
   @override
   void dispose() {
-    _name.dispose();
     _email.dispose();
     _pass.dispose();
     super.dispose();
   }
 
-  void _submit() {
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
     final auth = context.read<AuthProvider>();
-    if (_isRegister) {
-      auth.register(_name.text, _email.text, _pass.text);
-    } else {
-      auth.login(_email.text, _pass.text);
+    final result = await auth.login(_email.text.trim(), _pass.text);
+    if (!mounted) return;
+    if (auth.error == null && result != null) {
+      await PrefsService.saveLogin(
+        email: result['email']!,
+        name: result['name']!,
+        uid: result['uid']!,
+      );
     }
-    // No navigation here: AuthGate switches screens when status changes.
   }
 
   @override
@@ -44,46 +48,55 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(24),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(children: [
-              Icon(Icons.fastfood, size: 72, color: Theme.of(context).colorScheme.primary),
-              const Text('CanteenGo',
-                  style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 24),
-              if (_isRegister) ...[
-                AppTextField(controller: _name, label: 'Full name'),
-                const SizedBox(height: 12),
-              ],
-              AppTextField(
-                  controller: _email,
-                  label: 'Email',
-                  keyboardType: TextInputType.emailAddress),
-              const SizedBox(height: 12),
-              AppTextField(controller: _pass, label: 'Password', obscure: true),
-              if (auth.error != null) ...[
-                const SizedBox(height: 12),
-                Text(auth.error!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error)),
-              ],
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: PrimaryButton(
-                  label: _isRegister ? 'Create account' : 'Log in',
-                  loading: auth.busy,
-                  onPressed: _submit,
+            child: Column(
+              children: [
+                const _LoginHeader(),
+                const SizedBox(height: 24),
+                LoginForm(
+                  formKey: _formKey,
+                  emailController: _email,
+                  passwordController: _pass,
+                  obscurePassword: _obscurePass,
+                  onTogglePasswordVisibility: () =>
+                      setState(() => _obscurePass = !_obscurePass),
+                  error: auth.error,
+                  busy: auth.busy,
+                  onSubmit: _submit,
+                  onRegister: () {
+                    auth.clearError();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const RegisterScreen(),
+                      ),
+                    );
+                  },
                 ),
-              ),
-              TextButton(
-                onPressed: () {
-                  auth.clearError();
-                  setState(() => _isRegister = !_isRegister);
-                },
-                child: Text(_isRegister ? 'Have an account? Log in' : 'No account? Register'),
-              ),
-            ]),
+              ],
+            ),
           ),
         ),
       ),
+    );
+  }
+}
+
+class _LoginHeader extends StatelessWidget {
+  const _LoginHeader();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Icon(
+          Icons.fastfood,
+          size: 72,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        const Text(
+          'CanteenGo',
+          style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+        ),
+      ],
     );
   }
 }

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "81480592227",
+    "project_id": "canteengoappfiredb",
+    "storage_bucket": "canteengoappfiredb.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:81480592227:android:126151f67aac8af8ce8156",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_4"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBm7nkPsAkKyWj4R5DZdSBgWMXe7MqLnuY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

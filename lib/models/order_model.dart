@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Order lifecycle: pending -> preparing -> ready -> completed
 class OrderStatus {
   static const pending = 'pending';
   static const preparing = 'preparing';
@@ -9,7 +8,6 @@ class OrderStatus {
 
   static const active = [pending, preparing, ready];
 
-  /// Returns the next status, or null if the order is already completed.
   static String? next(String current) {
     switch (current) {
       case pending:
@@ -41,7 +39,7 @@ class OrderItem {
         itemId: m['itemId'] ?? '',
         name: m['name'] ?? '',
         price: (m['price'] ?? 0).toDouble(),
-        qty: (m['qty'] ?? 1) as int,
+        qty: (m['qty'] ?? 1) is int ? m['qty'] as int : (m['qty'] as num).toInt(),
       );
 
   Map<String, dynamic> toMap() =>

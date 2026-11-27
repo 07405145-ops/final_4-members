@@ -5,7 +5,6 @@ import '../providers/auth_provider.dart';
 import 'staff_menu_screen.dart';
 import 'staff_orders_screen.dart';
 
-/// Staff shell: tabs for incoming Orders and Menu availability.
 class StaffHome extends StatelessWidget {
   const StaffHome({super.key});
 

@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import '../models/cart_line.dart';
 import '../models/menu_item.dart';
 
-/// In-memory cart (not saved to Firestore until the order is placed).
 class CartProvider extends ChangeNotifier {
   final Map<String, CartLine> _lines = {};
 

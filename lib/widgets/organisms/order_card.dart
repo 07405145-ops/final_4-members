@@ -4,7 +4,6 @@ import '../../models/order_model.dart';
 import '../atoms/peso_text.dart';
 import '../atoms/status_chip.dart';
 
-/// Used by students (read-only) and staff (with an action button).
 class OrderCard extends StatelessWidget {
   const OrderCard({
     super.key,
@@ -44,7 +43,7 @@ class OrderCard extends StatelessWidget {
           Row(children: [
             PesoText(order.total, style: const TextStyle(fontWeight: FontWeight.bold)),
             const Spacer(),
-            if (action != null) action!,
+            if(action != null) action!, 
           ]),
         ]),
       ),

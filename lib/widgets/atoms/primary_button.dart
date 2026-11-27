@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'loading_state.dart';
+
 class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
@@ -17,8 +19,11 @@ class PrimaryButton extends StatelessWidget {
     return FilledButton(
       onPressed: loading ? null : onPressed,
       child: loading
-          ? const SizedBox(
-              height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
+          ? LoadingState(
+              size: 18,
+              strokeWidth: 2,
+              color: Theme.of(context).colorScheme.onPrimary,
+            )
           : Text(label),
     );
   }

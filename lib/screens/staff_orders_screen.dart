@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/order_model.dart';
 import '../providers/order_provider.dart';
 import '../widgets/atoms/empty_state.dart';
+import '../widgets/atoms/loading_state.dart';
 import '../widgets/organisms/order_card.dart';
 
 class StaffOrdersScreen extends StatelessWidget {
@@ -12,7 +13,7 @@ class StaffOrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<OrderProvider>();
-    if (p.loading) return const Center(child: CircularProgressIndicator());
+    if (p.loading) return Center(child: LoadingState(onRefresh: p.refresh));
     if (p.error != null) return EmptyState('Error: ${p.error}');
     if (p.orders.isEmpty) return const EmptyState('No active orders');
 

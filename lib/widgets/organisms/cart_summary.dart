@@ -4,7 +4,6 @@ import '../atoms/peso_text.dart';
 import '../atoms/primary_button.dart';
 import '../molecules/app_text_field.dart';
 
-/// Bottom panel of the cart: pickup note, total, and Place order button.
 class CartSummary extends StatelessWidget {
   const CartSummary({
     super.key,

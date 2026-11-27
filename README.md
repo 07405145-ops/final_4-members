@@ -1,8 +1,21 @@
-# flutter_application_4
+# CanteenGo
 
-A new Flutter project.
+## Firebase setup
 
-## Getting Started
+The app uses Firebase Authentication email/password sign-in and Cloud Firestore.
+Enable the Email/Password provider in Firebase Console under **Authentication →
+Sign-in method**.
+
+Deploy the Firestore rules from the repository root:
+
+```powershell
+firebase.cmd deploy --only firestore:rules --project canteengoappfiredb
+```
+
+Email/password authentication and Firestore rules do not require deploying a
+Cloud Function.
+
+## Flutter
 
 This project is a starting point for a Flutter application.
 

@@ -6,8 +6,6 @@ import '../models/cart_line.dart';
 import '../models/order_model.dart';
 import '../services/firestore_service.dart';
 
-/// Student mode: listens to MY orders and can place a new one.
-/// Staff mode:   listens to ALL active orders and can advance their status.
 class OrderProvider extends ChangeNotifier {
   OrderProvider.student(this._fs, String uid, this._email) : _uid = uid {
     _listen(_fs.ordersForUser(uid));
@@ -41,6 +39,16 @@ class OrderProvider extends ChangeNotifier {
         loading = false;
         notifyListeners();
       },
+    );
+  }
+
+  void refresh() {
+    _sub?.cancel();
+    loading = true;
+    error = null;
+    notifyListeners();
+    _listen(
+      _uid == null ? _fs.activeOrders() : _fs.ordersForUser(_uid),
     );
   }
 
