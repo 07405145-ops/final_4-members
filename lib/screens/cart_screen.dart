@@ -34,6 +34,7 @@ class _CartScreenState extends State<CartScreen> {
         total: cart.total,
         note: _note.text.trim(),
       );
+      if (!mounted) return;
       cart.clear();
       _note.clear();
       messenger.showSnackBar(const SnackBar(content: Text('Order placed! Check My Orders.')));

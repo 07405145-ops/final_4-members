@@ -11,8 +11,8 @@ import 'screens/staff_home.dart';
 import 'screens/student_home.dart';
 import 'services/auth_service.dart';
 import 'services/firestore_service.dart';
+import 'widgets/atoms/loading_state.dart';
 
-/// Root widget. Registers the services and the AuthProvider for the whole app.
 class CanteenGoApp extends StatelessWidget {
   const CanteenGoApp({super.key});
 
@@ -22,7 +22,9 @@ class CanteenGoApp extends StatelessWidget {
       providers: [
         Provider(create: (_) => AuthService()),
         Provider(create: (_) => FirestoreService()),
-        ChangeNotifierProvider(create: (c) => AuthProvider(c.read<AuthService>())),
+        ChangeNotifierProvider(
+          create: (c) => AuthProvider(c.read<AuthService>()),
+        ),
       ],
       child: MaterialApp(
         title: 'CanteenGo',
@@ -34,11 +36,6 @@ class CanteenGoApp extends StatelessWidget {
   }
 }
 
-/// Decides which part of the app to show based on AuthProvider.status.
-/// Menu/Cart/Order providers are created HERE (after login) because the
-/// Firestore rules only allow signed-in users to read data. When the user
-/// logs out this subtree is removed, so the providers are disposed and their
-/// Firestore listeners are cancelled automatically.
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
 
@@ -49,22 +46,38 @@ class AuthGate extends StatelessWidget {
 
     switch (auth.status) {
       case AuthStatus.loading:
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return Scaffold(
+          body: Center(child: LoadingState(onRefresh: auth.refresh)),
+        );
       case AuthStatus.signedOut:
         return const LoginScreen();
       case AuthStatus.student:
+        if (auth.user == null) {
+          return Scaffold(
+            body: Center(child: LoadingState(onRefresh: auth.refresh)),
+          );
+        }
         return MultiProvider(
           key: ValueKey('student-${auth.user!.uid}'),
           providers: [
             ChangeNotifierProvider(create: (_) => MenuProvider(fs)),
             ChangeNotifierProvider(create: (_) => CartProvider()),
             ChangeNotifierProvider(
-              create: (_) => OrderProvider.student(fs, auth.user!.uid, auth.user!.email ?? ''),
+              create: (_) => OrderProvider.student(
+                fs,
+                auth.user!.uid,
+                auth.user!.email ?? '',
+              ),
             ),
           ],
           child: const StudentHome(),
         );
       case AuthStatus.staff:
+        if (auth.user == null) {
+          return Scaffold(
+            body: Center(child: LoadingState(onRefresh: auth.refresh)),
+          );
+        }
         return MultiProvider(
           key: ValueKey('staff-${auth.user!.uid}'),
           providers: [

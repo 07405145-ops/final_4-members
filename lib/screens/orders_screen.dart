@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/order_provider.dart';
 import '../widgets/atoms/empty_state.dart';
+import '../widgets/atoms/loading_state.dart';
 import '../widgets/organisms/order_card.dart';
 
 class OrdersScreen extends StatelessWidget {
@@ -11,7 +12,7 @@ class OrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<OrderProvider>();
-    if (p.loading) return const Center(child: CircularProgressIndicator());
+    if (p.loading) return Center(child: LoadingState(onRefresh: p.refresh));
     if (p.error != null) return EmptyState('Error: ${p.error}');
     if (p.orders.isEmpty) return const EmptyState('No orders yet');
 

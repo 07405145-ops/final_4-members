@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/menu_provider.dart';
 import '../widgets/atoms/empty_state.dart';
+import '../widgets/atoms/loading_state.dart';
 import '../widgets/molecules/menu_tile.dart';
 
 class MenuScreen extends StatelessWidget {
@@ -12,7 +13,9 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final menu = context.watch<MenuProvider>();
-    if (menu.loading) return const Center(child: CircularProgressIndicator());
+    if (menu.loading) {
+      return Center(child: LoadingState(onRefresh: menu.refresh));
+    }
     if (menu.error != null) return EmptyState('Error: ${menu.error}');
     if (menu.items.isEmpty) return const EmptyState('Menu is empty. Ask canteen staff to add items.');
 

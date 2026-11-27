@@ -7,7 +7,6 @@ import 'cart_screen.dart';
 import 'menu_screen.dart';
 import 'orders_screen.dart';
 
-/// Student shell: AppBar + bottom navigation between Menu, Cart, My Orders.
 class StudentHome extends StatefulWidget {
   const StudentHome({super.key});
   @override

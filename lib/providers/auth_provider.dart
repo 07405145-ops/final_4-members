@@ -7,21 +7,29 @@ import '../services/auth_service.dart';
 
 enum AuthStatus { loading, signedOut, student, staff }
 
-/// State layer for login state + role. UI watches this; it calls AuthService.
 class AuthProvider extends ChangeNotifier {
   AuthProvider(this._service) {
-    _sub = _service.authChanges.listen(_onAuthChanged);
+    _listen();
   }
 
   final AuthService _service;
-  late final StreamSubscription<User?> _sub;
+  late StreamSubscription<User?> _sub;
+  int _authGeneration = 0;
 
   AuthStatus status = AuthStatus.loading;
   User? user;
-  bool busy = false; // true while a login/register call is running
+  bool busy = false;
   String? error;
 
-  Future<void> _onAuthChanged(User? u) async {
+  void _listen() {
+    final generation = ++_authGeneration;
+    _sub = _service.authChanges.listen(
+      (user) => _onAuthChanged(user, generation),
+    );
+  }
+
+  Future<void> _onAuthChanged(User? u, int generation) async {
+    if (generation != _authGeneration) return;
     user = u;
     if (u == null) {
       status = AuthStatus.signedOut;
@@ -34,20 +42,43 @@ class AuthProvider extends ChangeNotifier {
     try {
       role = await _service.getRole(u.uid);
     } catch (_) {
-      role = 'student'; // safest default if the role lookup fails
+      role = 'student';
     }
-    if (user?.uid != u.uid) return; // user changed while we were waiting
+    if (user?.uid != u.uid || generation != _authGeneration) return;
     status = role == 'staff' ? AuthStatus.staff : AuthStatus.student;
     notifyListeners();
   }
 
-  Future<void> login(String email, String password) =>
-      _run(() => _service.login(email, password));
+  void refresh() {
+    status = AuthStatus.loading;
+    notifyListeners();
+    _sub.cancel();
+    _listen();
+  }
+
+  Future<Map<String, String>?> login(String email, String password) async {
+    busy = true;
+    error = null;
+    notifyListeners();
+    try {
+      final result = await _service.login(email, password);
+      return result;
+    } on FirebaseAuthException catch (e) {
+      error = e.message ?? 'Authentication failed';
+      return null;
+    } catch (e) {
+      error = e.toString().replaceFirst('Exception: ', '');
+      return null;
+    } finally {
+      busy = false;
+      notifyListeners();
+    }
+  }
 
   Future<void> register(String name, String email, String password) =>
       _run(() => _service.register(name, email, password));
 
-  Future<void> logout() => _service.logout();
+  Future<void> logout() => _run(() => _service.logout());
 
   void clearError() {
     error = null;
@@ -63,7 +94,7 @@ class AuthProvider extends ChangeNotifier {
     } on FirebaseAuthException catch (e) {
       error = e.message ?? 'Authentication failed';
     } catch (e) {
-      error = e.toString();
+      error = e.toString().replaceFirst('Exception: ', '');
     } finally {
       busy = false;
       notifyListeners();
@@ -72,6 +103,7 @@ class AuthProvider extends ChangeNotifier {
 
   @override
   void dispose() {
+    _authGeneration++;
     _sub.cancel();
     super.dispose();
   }
