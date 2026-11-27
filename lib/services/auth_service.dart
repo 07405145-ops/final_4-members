@@ -9,7 +9,12 @@ class AuthService {
 
   Stream<User?> get authChanges => _auth.authStateChanges();
 
-  Future<void> register(String name, String email, String password) async {
+  Future<void> register(
+    String name,
+    String email,
+    String password,
+    String role,
+  ) async {
     final credential = await _auth.createUserWithEmailAndPassword(
       email: email.trim(),
       password: password,
@@ -19,7 +24,10 @@ class AuthService {
       await _db.collection('users').doc(user.uid).set({
         'name': name.trim(),
         'email': user.email ?? email.trim(),
-        'role': 'student',
+        'role': role,
+        'phone': '',
+        'address': '',
+        'photoUrl': '',
         'createdAt': FieldValue.serverTimestamp(),
       });
     } on FirebaseException {

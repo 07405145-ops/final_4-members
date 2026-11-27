@@ -12,7 +12,15 @@ class OrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<OrderProvider>();
-    if (p.loading) return Center(child: LoadingState(onRefresh: p.refresh));
+    if (p.loading) {
+      return Center(
+        child: LoadingState(
+          showIndicator: false,
+          message: 'Loading orders...',
+          onRefresh: p.refresh,
+        ),
+      );
+    }
     if (p.error != null) return EmptyState('Error: ${p.error}');
     if (p.orders.isEmpty) return const EmptyState('No orders yet');
 

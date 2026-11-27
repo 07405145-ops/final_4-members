@@ -26,22 +26,35 @@ service cloud.firestore {
         && data.available is bool;
     }
 
+    function validUserProfileUpdate() {
+      let changed = request.resource.data.diff(resource.data).affectedKeys();
+      return changed.hasOnly(['name', 'phone', 'address', 'photoUrl'])
+        && (!changed.hasAny(['name'])
+          || request.resource.data.name is string)
+        && (!changed.hasAny(['phone'])
+          || request.resource.data.phone is string)
+        && (!changed.hasAny(['address'])
+          || request.resource.data.address is string)
+        && (!changed.hasAny(['photoUrl'])
+          || request.resource.data.photoUrl is string);
+    }
+
     match /users/{userId} {
       allow get: if ownsUser(userId);
       allow create: if ownsUser(userId)
         && request.resource.data.keys().hasOnly([
-          'name', 'email', 'role', 'createdAt'
+          'name', 'email', 'role', 'phone', 'address', 'photoUrl', 'createdAt'
         ])
         && request.resource.data.keys().hasAll([
-          'name', 'email', 'role', 'createdAt'
+          'name', 'email', 'role', 'phone', 'address', 'photoUrl', 'createdAt'
         ])
         && request.resource.data.name is string
         && request.resource.data.email is string
-        && request.resource.data.role == 'student';
-      allow update: if ownsUser(userId)
-        && request.resource.data.diff(resource.data).affectedKeys()
-          .hasOnly(['name'])
-        && request.resource.data.name is string;
+        && request.resource.data.role in ['student', 'staff']
+        && request.resource.data.phone is string
+        && request.resource.data.address is string
+        && request.resource.data.photoUrl is string;
+      allow update: if ownsUser(userId) && validUserProfileUpdate();
     }
 
     match /menu_items/{menuId} {

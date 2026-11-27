@@ -10,6 +10,8 @@ class LoadingState extends StatefulWidget {
     this.color,
     this.onRefresh,
     this.refreshDelay = const Duration(seconds: 2),
+    this.showIndicator = true,
+    this.message,
   });
 
   final double? size;
@@ -17,6 +19,8 @@ class LoadingState extends StatefulWidget {
   final Color? color;
   final VoidCallback? onRefresh;
   final Duration refreshDelay;
+  final bool showIndicator;
+  final String? message;
 
   @override
   State<LoadingState> createState() => _LoadingStateState();
@@ -72,28 +76,31 @@ class _LoadingStateState extends State<LoadingState> {
       strokeWidth: widget.strokeWidth,
     );
 
-    if (widget.size != null) {
+    if (widget.size != null && widget.showIndicator) {
       return SizedBox(
         width: widget.size,
         height: widget.size,
         child: indicator,
       );
     }
-    if (widget.onRefresh == null) return indicator;
+    if (widget.showIndicator && widget.onRefresh == null) return indicator;
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        indicator,
-        if (_showRefreshButton) ...[
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: _handleRefresh,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Refresh'),
-          ),
-        ],
-      ],
-    );
+    final children = <Widget>[];
+    if (widget.showIndicator) {
+      children.add(indicator);
+    } else if (widget.message != null) {
+      children.add(Text(widget.message!, textAlign: TextAlign.center));
+    }
+    if (_showRefreshButton) {
+      children.addAll([
+        const SizedBox(height: 16),
+        OutlinedButton.icon(
+          onPressed: _handleRefresh,
+          icon: const Icon(Icons.refresh),
+          label: const Text('Refresh'),
+        ),
+      ]);
+    }
+    return Column(mainAxisSize: MainAxisSize.min, children: children);
   }
 }

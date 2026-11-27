@@ -2,14 +2,16 @@
 
 ## Firebase setup
 
-The app uses Firebase Authentication email/password sign-in and Cloud Firestore.
+The app uses Firebase Authentication email/password sign-in, Cloud Firestore,
+and Firebase Storage for profile photos.
 Enable the Email/Password provider in Firebase Console under **Authentication →
 Sign-in method**.
+Enable Firebase Storage and create its default bucket in the Firebase Console.
 
-Deploy the Firestore rules from the repository root:
+Deploy the Firestore and Storage rules from the repository root:
 
 ```powershell
-firebase.cmd deploy --only firestore:rules --project canteengoappfiredb
+firebase.cmd deploy --only firestore:rules,storage --project canteengoappfiredb
 ```
 
 Email/password authentication and Firestore rules do not require deploying a

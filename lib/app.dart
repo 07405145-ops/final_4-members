@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/app_theme.dart';
+import 'core/navigation_refresh_observer.dart';
 import 'providers/auth_provider.dart';
 import 'providers/cart_provider.dart';
 import 'providers/menu_provider.dart';
@@ -30,6 +31,7 @@ class CanteenGoApp extends StatelessWidget {
         title: 'CanteenGo',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light,
+        navigatorObservers: [navigationRefreshObserver],
         home: const AuthGate(),
       ),
     );

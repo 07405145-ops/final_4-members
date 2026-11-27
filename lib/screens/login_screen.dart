@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../core/navigation_refresh_observer.dart';
 import '../providers/auth_provider.dart';
 import '../services/prefs_service.dart';
 import '../screens/register_screen.dart';
@@ -43,36 +44,38 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 400),
-            child: Column(
-              children: [
-                const _LoginHeader(),
-                const SizedBox(height: 24),
-                LoginForm(
-                  formKey: _formKey,
-                  emailController: _email,
-                  passwordController: _pass,
-                  obscurePassword: _obscurePass,
-                  onTogglePasswordVisibility: () =>
-                      setState(() => _obscurePass = !_obscurePass),
-                  error: auth.error,
-                  busy: auth.busy,
-                  onSubmit: _submit,
-                  onRegister: () {
-                    auth.clearError();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const RegisterScreen(),
-                      ),
-                    );
-                  },
-                ),
-              ],
+      body: NavigationLoadingBody(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 400),
+              child: Column(
+                children: [
+                  const _LoginHeader(),
+                  const SizedBox(height: 24),
+                  LoginForm(
+                    formKey: _formKey,
+                    emailController: _email,
+                    passwordController: _pass,
+                    obscurePassword: _obscurePass,
+                    onTogglePasswordVisibility: () =>
+                        setState(() => _obscurePass = !_obscurePass),
+                    error: auth.error,
+                    busy: auth.busy,
+                    onSubmit: _submit,
+                    onRegister: () {
+                      auth.clearError();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const RegisterScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         ),

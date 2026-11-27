@@ -14,10 +14,17 @@ class MenuScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final menu = context.watch<MenuProvider>();
     if (menu.loading) {
-      return Center(child: LoadingState(onRefresh: menu.refresh));
+      return Center(
+        child: LoadingState(
+          showIndicator: false,
+          message: 'Loading menu...',
+          onRefresh: menu.refresh,
+        ),
+      );
     }
     if (menu.error != null) return EmptyState('Error: ${menu.error}');
-    if (menu.items.isEmpty) return const EmptyState('Menu is empty. Ask canteen staff to add items.');
+    if (menu.items.isEmpty)
+      return const EmptyState('Menu is empty. Ask canteen staff to add items.');
 
     return ListView.builder(
       itemCount: menu.items.length,
@@ -27,10 +34,12 @@ class MenuScreen extends StatelessWidget {
           item: item,
           onAdd: () {
             context.read<CartProvider>().add(item);
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('${item.name} added'),
-              duration: const Duration(milliseconds: 800),
-            ));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${item.name} added'),
+                duration: const Duration(milliseconds: 800),
+              ),
+            );
           },
         );
       },

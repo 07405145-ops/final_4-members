@@ -30,8 +30,16 @@ class AuthProvider extends ChangeNotifier {
 
   Future<void> _onAuthChanged(User? u, int generation) async {
     if (generation != _authGeneration) return;
+    final previousStatus = status;
     user = u;
     if (u == null) {
+      if (previousStatus == AuthStatus.student ||
+          previousStatus == AuthStatus.staff) {
+        status = AuthStatus.loading;
+        notifyListeners();
+        await Future<void>.delayed(const Duration(seconds: 2));
+        if (generation != _authGeneration || user != null) return;
+      }
       status = AuthStatus.signedOut;
       notifyListeners();
       return;
@@ -45,6 +53,10 @@ class AuthProvider extends ChangeNotifier {
       role = 'student';
     }
     if (user?.uid != u.uid || generation != _authGeneration) return;
+    if (previousStatus == AuthStatus.signedOut) {
+      await Future<void>.delayed(const Duration(seconds: 2));
+      if (user?.uid != u.uid || generation != _authGeneration) return;
+    }
     status = role == 'staff' ? AuthStatus.staff : AuthStatus.student;
     notifyListeners();
   }
@@ -75,8 +87,12 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> register(String name, String email, String password) =>
-      _run(() => _service.register(name, email, password));
+  Future<void> register(
+    String name,
+    String email,
+    String password,
+    String role,
+  ) => _run(() => _service.register(name, email, password, role));
 
   Future<void> logout() => _run(() => _service.logout());
 
